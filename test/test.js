@@ -10,15 +10,7 @@ const cmd = path.join(baseDir, "index.js");
 
 const exec = (...args) => {
   return cp.execFileSync(cmd, args, { cwd: baseDir }).toString();
-  // return proc.stdout.toString();
 };
-
-// test("CLI help", async (t) => {
-//   const output = exec("-h");
-//   t.equals(output.trim(), exec("--help").trim());
-//   t.match(output, /Usage/);
-//   t.match(output, /Example/);
-// });
 
 test("0%", async (t) => {
   const output = exec("test/gray.mp4", "test/gray.mp4");
