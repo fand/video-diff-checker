@@ -2,10 +2,6 @@
 
 A CLI tool to compare diffs in 2 videos which have same length.
 
-## Prerequisite
-
-`ffmpeg` command has to be installed.
-
 ## Install
 
 ```

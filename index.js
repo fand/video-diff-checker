@@ -7,6 +7,7 @@ import readline from "node:readline";
 import tempy from "tempy";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
+import ffmpeg from "ffmpeg-static";
 
 import meow from "meow";
 
@@ -99,7 +100,7 @@ console.log(`\nDiff: ${diffRatio}% (${diffPixels} in ${totalPixels} pixels)\n`);
 // Functions
 function extractFrames(file, dst) {
   try {
-    cp.execSync(`ffmpeg -i ${file} ${dst}/%04d.png`, {
+    cp.execSync(`${ffmpeg} -i ${file} ${dst}/%04d.png`, {
       shell: true,
       stdio: "ignore",
     });
