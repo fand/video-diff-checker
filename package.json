@@ -1,0 +1,22 @@
+{
+  "name": "@fand/video-diff-checker",
+  "version": "0.0.1",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "fand <fand.gmork@gmail.com> (https://gmork.in/)",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "meow": "^10.1.2",
+    "pixelmatch": "^5.2.1",
+    "pngjs": "^6.0.0",
+    "tempy": "^2.0.0"
+  }
+}
