@@ -13,6 +13,12 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "index.js"
+  ],
   "dependencies": {
     "ffmpeg-static": "^4.4.0",
     "meow": "^10.1.2",
