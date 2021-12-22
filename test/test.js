@@ -36,3 +36,9 @@ test("10% moving", async (t) => {
   const output = exec("test/gray.mp4", "test/red_10_moving.mp4");
   t.match(output, /Diff: 10.000%/);
 });
+
+test("diff", async (t) => {
+  exec("test/gray.mp4", "test/red_50_moving.mp4", "-o", "diff.mp4");
+  const output = exec("diff.mp4", "test/diff_50_moving.mp4");
+  t.match(output, /Diff: 0.000%/);
+});

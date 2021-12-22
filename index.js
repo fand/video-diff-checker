@@ -19,6 +19,7 @@ const usage = `
 
   Options:
     --threshod, -t  Set threshold for diffs (default: 0.1)
+    --output, -o    Output path for diff as a MP4 file if specified
 
   Examples:
     $ pixelmatcher foo.mp4 bar.mp4
@@ -33,6 +34,10 @@ const cli = meow(usage, {
       type: "number",
       alias: "t",
       default: 0.1,
+    },
+    output: {
+      type: "string",
+      alias: "o",
     },
   },
 });
@@ -50,6 +55,10 @@ console.log(`>> Input: ${file1}, ${file2} (threshold: ${threshold})`);
 // Create directories
 const framesDir1 = tempy.directory({ prefix: "a" });
 const framesDir2 = tempy.directory({ prefix: "b" });
+const diffDir = tempy.directory({ prefix: "out" });
+
+// Get file info
+const fps = getFps(file1);
 
 // Extract frames
 console.log(`>> Extracting frames from ${file1}...`);
@@ -83,9 +92,27 @@ for (let i = 0; i < frames1.length; i++) {
   const img2 = readFrame(framePath2);
 
   const { width, height } = img1;
-  const diffCount = pixelmatch(img1.data, img2.data, null, width, height, {
-    threshold,
-  });
+
+  let diff = null;
+  if (!!cli.flags.output) {
+    diff = new PNG({ width, height });
+  }
+
+  const diffCount = pixelmatch(
+    img1.data,
+    img2.data,
+    diff?.data,
+    width,
+    height,
+    {
+      threshold,
+    }
+  );
+
+  if (!!cli.flags.output) {
+    const filepath = path.join(diffDir, `${i.toString().padStart(4, "0")}.png`);
+    writeFrame(filepath, diff);
+  }
 
   totalPixels += width * height;
   diffPixels += diffCount;
@@ -96,6 +123,11 @@ console.log(`>> Comparing frames... 100%`);
 // Output result
 const diffRatio = ((diffPixels / totalPixels) * 100).toFixed(3);
 console.log(`\nDiff: ${diffRatio}% (${diffPixels} in ${totalPixels} pixels)\n`);
+
+if (!!cli.flags.output) {
+  mergeFrames(diffDir, cli.flags.output, fps);
+  console.log(`Diffs are written to: ${cli.flags.output}\n`);
+}
 
 // Functions
 function extractFrames(file, dst) {
@@ -125,6 +157,43 @@ function readFrame(filepath) {
   } catch {
     console.log("FAILED");
     console.error(`ERROR: Failed to read image ${filepath}`);
+    process.exit(1);
+  }
+}
+
+function writeFrame(filepath, image) {
+  try {
+    fs.writeFileSync(filepath, PNG.sync.write(image));
+  } catch {
+    console.log("FAILED");
+    console.error(`ERROR: Failed to write image to ${filepath}`);
+    process.exit(1);
+  }
+}
+
+function getFps(file) {
+  try {
+    const fpsStr = cp.execSync(
+      `${ffmpeg} -i ${file} 2>&1 | sed -n "s/.*, \\(.*\\) fps.*/\\1/p"`
+    );
+    return parseInt(fpsStr);
+  } catch {
+    console.error(`ERROR: Failed to get FPS from ${file}`);
+    process.exit(1);
+  }
+}
+
+function mergeFrames(srcDir, dst, fps) {
+  try {
+    cp.execSync(
+      `${ffmpeg} -i ${srcDir}/%04d.png -r ${fps} -c:v libx264 -pix_fmt yuv420p ${dst} -y`,
+      {
+        shell: true,
+        stdio: "ignore",
+      }
+    );
+  } catch {
+    console.error(`ERROR: Failed to output video to ${dst}`);
     process.exit(1);
   }
 }
