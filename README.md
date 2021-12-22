@@ -1,5 +1,7 @@
 # video-diff-checker
 
+![test status](https://github.com/fand/video-diff-checker/actions/workflows/test.yml/badge.svg)
+
 A CLI tool to compare diffs in 2 videos which have same length.
 
 ## Install
